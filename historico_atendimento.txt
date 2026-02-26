@@ -1,0 +1,5 @@
+ID	Data	Categoria	Título(s)	Tema(s)	Tipo/Fechamento	usuarioLogado	Número da Ocorrência	Adesão	Demais Parcelas	Fundo de Destino	Modalidade	Número da Proposta	Número do Certificado	Regime Tributário	Valores	Certificado de destino	Certificado de origem	Data atual	Tipo de Retirada
+222222	2026-02-26T17:00:14.181Z	Procedente	EMISSÃO	EMISSÃO COM TRANSFERÊNCIA	Complemento	Marcelo Pereira da Silva Ezio	222222			CAIXA FIC PREV 200 RF, CAIXA FIC PREV 200 RF PÓS FIXADO					1.000,00	4545445	222222	26/02/2026	TOTAL
+3333333	2026-02-26T17:22:55.338Z	Procedente	EMISSÃO	EMISSÃO COM TRANSFERÊNCIA	Resolvida	Marcelo Pereira da Silva Ezio	3333333			CAIXA FIC PREV 180 RF					1.000,00	3333	222222	26/02/2026	TOTAL
+33333332	2026-02-26T17:26:33.986Z	Procedente	EMISSÃO	EMISSÃO COM TRANSFERÊNCIA	Resolvida	Marcelo Pereira da Silva Ezio	33333332			CAIXA FIC PREV 180 RF					1.000,00	3333	222222	26/02/2026	TOTAL
+3333	2026-02-26T17:28:52.889Z	Procedente	EMISSÃO	EMISSÃO COM TRANSFERÊNCIA	Resolvida	Marcelo Pereira da Silva Ezio	3333			CAIXA FIC PREV 250 RF, CAIXA FIC PREV 250 RF PÓS FIXADO					1.000,00	222222222	999999	26/02/2026	TOTAL
