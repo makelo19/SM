@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM - Sistema Modular</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <style>
+        :root {
+            --laranja: #FF8C00;
+            --navy: #003366;
+        }
+
+        body {
+            background: #f4f6f9;
+            font-family: Arial, sans-serif !important;
+        }
+
+        .navbar-custom {
+            background: var(--navy);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            cursor: pointer;
+        }
+
+        .nav-link.active {
+            color: var(--laranja) !important;
+            font-weight: bold;
+        }
+
+        .btn-navy {
+            background-color: var(--navy);
+            color: white;
+        }
+
+        .btn-navy:hover {
+            background-color: #002244;
+            color: white;
+        }
+
+        /* Login Screen specific styles */
+        #login-screen {
+            background: linear-gradient(135deg, #FF4500, #FF8C00, #FFA500);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h3 class="mb-4" style="color: #003366;">SM Login</h3>
+            <form id="login-form">
+                <input type="hidden" name="acao" value="ajax_login">
+                <div class="mb-3">
+                    <input type="text" id="login-usuario" name="usuario" class="form-control"
+                        placeholder="Seu Nome Completo" required>
+                </div>
+                <button type="submit" class="btn btn-navy w-100 p-2" style="border-radius: 20px;">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP PRINCIPAL (Escondido até logar) -->
+    <div id="app-screen" style="display: none;">
+        <nav class="navbar navbar-expand-lg navbar-custom mb-4 sticky-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#" onclick="showPage('dashboard')"><i class="fas fa-cubes me-2"></i>SM -
+                    Sistema Modular</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link active" id="nav-dashboard"
+                                onclick="showPage('dashboard')">Processos</a></li>
+                        <li class="nav-item"><a class="nav-link" id="nav-detalhes"
+                                onclick="showPage('detalhes')">Serviços</a></li>
+                        <li class="nav-item"><a class="nav-link" id="nav-lembretes"
+                                onclick="showPage('lembretes')">Lembretes</a></li>
+                        <li class="nav-item"><a class="nav-link" id="nav-config"
+                                onclick="showPage('config')">Configurações</a></li>
+                    </ul>
+                    <div class="d-flex align-items-center text-white">
+                        <i class="fas fa-user-circle me-2"></i> <span id="user-name-display">Usuário</span>
+                        <button class="btn btn-sm btn-outline-light ms-3" onclick="logout()">Sair</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4">
+            <!-- PÁGINAS -->
+            <div id="page-dashboard" class="page-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0 text-navy"><i class="fas fa-cubes me-2"></i>Processos (Dashboard)</h2>
+                    <div>
+                        <button class="btn btn-navy btn-sm" onclick="alert('Funcionalidade em desenvolvimento')"><i
+                                class="fas fa-plus me-1"></i> Novo Processo</button>
+                        <button class="btn btn-success btn-sm" onclick="alert('Funcionalidade em desenvolvimento')"><i
+                                class="fas fa-file-excel me-1"></i> Excel</button>
+                    </div>
+                </div>
+
+                <div class="card p-4 mb-4 shadow-sm" style="border-radius: 12px; border: none; background: #fff;">
+                    <h5 class="text-navy mb-3"><i class="fas fa-filter me-2"></i>Filtros</h5>
+                    <form id="form_dashboard_filter" class="row g-3 align-items-end"
+                        onsubmit="event.preventDefault(); loadDashboardTable();">
+                        <div id="dynamic-filters-container" class="row g-3 m-0 p-0 w-100">
+                            <div class="col-12 text-center text-muted py-3">
+                                <i class="fas fa-spinner fa-spin me-2"></i> Carregando filtros...
+                            </div>
+                        </div>
+                        <div class="col-12 text-end mt-3">
+                            <button type="button" class="btn btn-outline-secondary btn-sm me-2"
+                                onclick="document.getElementById('form_dashboard_filter').reset(); loadDashboardTable();">Limpar</button>
+                            <button type="submit" class="btn btn-navy btn-sm"><i class="fas fa-search me-1"></i>
+                                Filtrar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card p-4 shadow-sm" style="border-radius: 12px; border: none; background: #fff;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-navy mb-0" id="dash_count_header"><i class="fas fa-list me-2"></i>Lista de
+                            Processos</h5>
+                    </div>
+                    <div class="table-responsive" id="dashboard_table_container" style="min-height: 250px;">
+                        <!-- Conteúdo carregado via AJAX da api.php -->
+                    </div>
+                    <div id="dashboard_pagination_container" class="mt-3"></div>
+                </div>
+            </div>
+
+            <div id="page-detalhes" class="page-content" style="display: none;">
+                <div class="row">
+                    <div class="col-12 mb-3 d-flex align-items-center gap-2 flex-wrap">
+                        <button class="btn btn-outline-secondary" onclick="showPage('dashboard')"><i
+                                class="fas fa-arrow-left me-1"></i> Voltar</button>
+                        <button type="button" class="btn btn-navy"
+                            onclick="alert('Novo atendimento em migração')">Iniciar novo atendimento</button>
+                    </div>
+                    <div class="col-md-12">
+                        <ul class="nav nav-tabs mb-3 justify-content-center">
+                            <li class="nav-item"><button type="button" class="nav-link active" data-bs-toggle="tab"
+                                    data-bs-target="#tab-dados">Dados</button></li>
+                            <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#tab-textos">Registro de Envio</button></li>
+                            <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#tab-email">E-mail</button></li>
+                            <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#tab-registros">Registros de Processo</button></li>
+                            <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#tab-anexos"><i class="fas fa-paperclip me-1"></i>Anexos</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tab-dados">
+                                <form id="form_processo" onsubmit="event.preventDefault(); salvarProcesso();">
+                                    <input type="hidden" name="acao" value="salvar_processo">
+                                    <div id="editor-lock-warning" class="alert alert-warning d-none"></div>
+                                    <div id="editor-fields-container" class="mt-4">
+                                        <div class="text-center p-5 text-muted"><i
+                                                class="fas fa-spinner fa-spin me-2"></i> Inicializando editor...</div>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-end mb-5">
+                                        <button type="submit" class="btn btn-navy"><i class="fas fa-save me-2"></i>
+                                            Salvar Alterações</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="tab-textos">
+                                <div class="card p-4 mt-3 shadow-sm" style="border-radius:12px; border:none;">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="input-group input-group-sm w-50">
+                                            <span class="input-group-text bg-light border-end-0"><i
+                                                    class="fas fa-search"></i></span>
+                                            <input type="text" id="tpl_search" class="form-control border-start-0"
+                                                placeholder="Buscar modelo/texto...">
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-navy fw-bold"
+                                            onclick="alert('Gerenciar Modelos em migração')"><i
+                                                class="fas fa-cog me-1"></i> Gerenciar Modelos</button>
+                                    </div>
+                                    <div id="textos_container" class="row g-3">
+                                        <div class="col-12 text-center p-4 text-muted"><i
+                                                class="fas fa-spinner fa-spin me-2"></i>Carregando textos...</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab-email">
+                                <div class="card p-4 mt-3 shadow-sm" style="border-radius:12px; border:none;">
+                                    <h5 class="text-navy mb-3"><i class="fas fa-envelope me-2"></i>Disparo de E-mail
+                                    </h5>
+                                    <form id="form_email"
+                                        onsubmit="event.preventDefault(); alert('Disparo em migração');">
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-muted">Para:</label>
+                                            <input type="email" class="form-control form-control-sm" name="to">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-muted">Assunto:</label>
+                                            <input type="text" class="form-control form-control-sm" name="subject">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-muted">Mensagem:</label>
+                                            <textarea class="form-control form-control-sm" rows="6"
+                                                name="body"></textarea>
+                                        </div>
+                                        <button class="btn btn-navy btn-sm"><i class="fas fa-paper-plane me-1"></i>
+                                            Enviar E-mail</button>
+                                    </form>
+                                    <hr class="my-4">
+                                    <h5 class="text-navy mb-3">Histórico de E-mails Enviados</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped small">
+                                            <thead>
+                                                <tr>
+                                                    <th>Data/Hora</th>
+                                                    <th>Responsável</th>
+                                                    <th>Assunto</th>
+                                                    <th>Para</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="email_history_body"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab-registros">
+                                <div class="card p-4 mt-3 shadow-sm" style="border-radius:12px; border:none;">
+                                    <h5 class="text-navy mb-3"><i class="fas fa-clipboard-list me-2"></i>Novo Registro
+                                    </h5>
+                                    <div class="row g-3" id="registros_form_container">
+                                        <!-- Preenchido via JS baseado em smRegFields -->
+                                    </div>
+                                    <div class="col-12 text-end mt-3">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                            onclick="saveProcessRecord()"><i class="fas fa-save me-1"></i> Salvar
+                                            Registro</button>
+                                    </div>
+                                    <hr class="my-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="text-navy mb-0">Histórico de Registros</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteSelectedHistory('registros')"><i
+                                                class="fas fa-trash me-1"></i> Excluir Selecionados</button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped small" id="history_registros_table">
+                                            <thead id="history_registros_head">
+                                                <tr>
+                                                    <th><input type="checkbox"
+                                                            onclick="toggleAllChecks(this, 'registros_del')"></th>
+                                                    <th>Data</th>
+                                                    <th>Usuário</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="history_registros_body"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab-anexos">
+                                <div class="card p-4 mt-3 shadow-sm" style="border-radius:12px; border:none;">
+                                    <div class="d-flex justify-content-between mb-3 align-items-end">
+                                        <div class="w-50">
+                                            <label class="form-label small fw-bold text-muted">Selecionar
+                                                Arquivo(s)</label>
+                                            <input type="file" id="input_anexo_file"
+                                                class="form-control form-control-sm" multiple>
+                                        </div>
+                                        <button class="btn btn-navy btn-sm ms-2"
+                                            onclick="alert('Upload em migração')"><i class="fas fa-upload me-1"></i>
+                                            Enviar</button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover small">
+                                            <thead>
+                                                <tr>
+                                                    <th>Arquivo</th>
+                                                    <th>Tamanho</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table_anexos"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-lembretes" class="page-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0 text-navy"><i class="fas fa-clock me-2"></i>Lembretes Mapeados</h2>
+                </div>
+
+                <div class="card p-4 mb-4 shadow-sm" style="border-radius: 12px; border: none; background: #fff;">
+                    <form id="form_lembretes_filter" class="row g-3 align-items-end"
+                        onsubmit="event.preventDefault(); loadLembretesTable();">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted mb-1">Data Início</label>
+                            <input type="datetime-local" name="fLembreteIni" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted mb-1">Data Fim</label>
+                            <input type="datetime-local" name="fLembreteFim" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted mb-1">Busca Global</label>
+                            <input type="text" name="fBuscaGlobal" class="form-control form-control-sm"
+                                placeholder="Pesquisar...">
+                        </div>
+                        <div class="col-md-2 mt-3 text-end">
+                            <button type="submit" class="btn btn-navy btn-sm w-100"><i class="fas fa-search me-1"></i>
+                                Filtrar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card p-4 shadow-sm" style="border-radius: 12px; border: none; background: #fff;">
+                    <div class="table-responsive" id="lembretes_table_container" style="min-height: 250px;">
+                        <!-- Conteúdo carregado via AJAX -->
+                    </div>
+                    <div id="lembretes_pagination_container" class="mt-3"></div>
+                </div>
+            </div>
+
+            <div id="page-config" class="page-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0 text-navy"><i class="fas fa-database me-2"></i>Gerenciador de Bases</h2>
+                    <div>
+                        <select id="config-base-selector" class="form-select form-select-sm d-inline-block w-auto"
+                            onchange="loadBaseConfigTable()">
+                            <option value="">-- Selecione uma Base --</option>
+                            <option value="Identificacao.json">Identificações (Créditos)</option>
+                            <option value="Base_clientes.json">Clientes</option>
+                            <option value="Base_agencias.json">Agências</option>
+                            <option value="Textos_email_atendimento.json">Textos de E-mail</option>
+                        </select>
+                        <button class="btn btn-navy btn-sm ms-2" onclick="alert('Funcionalidade em desenvolvimento')"><i
+                                class="fas fa-plus me-1"></i> Novo Registro</button>
+                    </div>
+                </div>
+
+                <div class="card p-4 shadow-sm" style="border-radius: 12px; border: none; background: #fff;"
+                    id="config-base-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-navy mb-0" id="base_count_header"><i class="fas fa-table me-2"></i>Registros
+                        </h5>
+                        <input type="text" id="base_search_input" class="form-control form-control-sm w-25"
+                            placeholder="Buscar..." onkeyup="event.key === 'Enter' ? loadBaseConfigTable() : null">
+                    </div>
+                    <div class="table-responsive" id="base_table_container" style="min-height: 250px;">
+                        <div class="alert alert-secondary text-center">Selecione uma base acima para gerenciar.</div>
+                    </div>
+                    <div id="base_pagination_container" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts do Frontend (Vendor) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
+    <!-- Script Principal (Lógica de Navegação e API) -->
+    <script>
+        // --- FUNÇÕES DA API BASE ---
+        async function apiCall(action, params = {}) {
+            const formData = new URLSearchParams();
+            formData.append('acao', action);
+            for (const key in params) {
+                formData.append(key, params[key]);
+            }
+
+            try {
+                const res = await fetch('api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+                const data = await res.json();
+
+                // Se a API retornar que a sessão expirou, força o deslog
+                if (data.redirect === 'login') {
+                    showLoginScreen();
+                    return { status: 'error', message: 'Sessão Expirada' };
+                }
+                return data;
+            } catch (err) {
+                console.error('Erro na API:', err);
+                return { status: 'error', message: 'Falha na comunicação com o servidor.' };
+            }
+        }
+
+        // --- AUTENTICAÇÃO E LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const usuario = document.getElementById('login-usuario').value;
+
+            Swal.fire({ title: 'Entrando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const data = await apiCall('ajax_login', { usuario: usuario });
+
+            if (data.status === 'ok') {
+                Swal.close();
+                document.getElementById('user-name-display').innerText = usuario;
+                localStorage.setItem('sm_current_user', usuario);
+                showAppScreen();
+            } else {
+                Swal.fire('Erro', data.message || 'Falha ao entrar.', 'error');
+            }
+        });
+
+        async function logout() {
+            await fetch('api.php?logout=1'); // Backend session destroy endpoint
+            localStorage.removeItem('sm_current_user');
+            showLoginScreen();
+        }
+
+        // --- NAVEGAÇÃO SPA ---
+        function showLoginScreen() {
+            document.getElementById('app-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        function showAppScreen() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+
+            // Restaura o nome do usuário salvo localmente, como fallback estético
+            const user = localStorage.getItem('sm_current_user') || 'Usuário';
+            document.getElementById('user-name-display').innerText = user;
+
+            // Inicia componentes
+            initDashboard();
+        }
+
+        function showPage(pageId) {
+            // Esconde todas as divs content
+            document.querySelectorAll('.page-content').forEach(el => el.style.display = 'none');
+            // Remove a classe active de todos os links navbar
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+            // Mostra a tela pretendida e pinta o link correspondente
+            const targetDiv = document.getElementById('page-' + pageId);
+            const targetNav = document.getElementById('nav-' + pageId);
+
+            if (targetDiv) targetDiv.style.display = 'block';
+            if (targetNav) targetNav.classList.add('active');
+        }
+
+        // --- GESTÃO DO DASHBOARD (PROCESSOS) ---
+        let dashCurrentPage = 1;
+        let dashSortCol = 'DATA';
+        let dashSortDir = 'desc';
+        let smProcFields = []; // Cache dos campos para o Editor
+        let smRegFields = [];  // Cache dos campos de Registros
+        let currentLoadedPort = ''; // Porta do processo atualmente aberto
+
+        async function initDashboard() {
+            // Busca os campos de esquema da API
+            const initData = await apiCall('ajax_get_init');
+            if (initData.status === 'ok') {
+                smProcFields = initData.procFields;
+                smRegFields = initData.regFields;
+                await buildDashboardFilters(initData.procFields);
+                loadDashboardTable(1);
+            }
+        }
+
+        async function buildDashboardFilters(fields) {
+            const container = document.getElementById('dynamic-filters-container');
+
+            let html = `
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Atendente</label>
+                    <select name="fAtendente" class="form-select form-select-sm shadow-sm" id="dash_fAtendente">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Data Início</label>
+                    <input type="datetime-local" name="fDataIni" class="form-control form-control-sm shadow-sm">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Data Fim</label>
+                    <input type="datetime-local" name="fDataFim" class="form-control form-control-sm shadow-sm">
+                </div>
+            `;
+
+            fields.forEach(f => {
+                const show = f.show_dashboard_filter || f.show_filter;
+                if (show && !f.deleted && f.key !== 'Nome_atendente' && f.key !== 'DATA') {
+                    html += `<div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted mb-1">${f.label || f.key}</label>`;
+
+                    if (f.options || f.type === 'select' || f.key.toUpperCase() === 'STATUS') {
+                        html += `<select name="f_${f.key}" class="form-select form-select-sm shadow-sm" id="dash_f_${f.key}"><option value="">Todos</option></select>`;
+                    } else {
+                        html += `<input type="text" name="f_${f.key}" class="form-control form-control-sm shadow-sm">`;
+                    }
+                    html += `</div>`;
+                }
+            });
+
+            html += `
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Busca Global</label>
+                    <input type="text" name="fBusca" class="form-control form-control-sm shadow-sm" placeholder="CPF, Nome...">
+                </div>
+                <div class="col-md-2 d-flex align-items-center mb-1">
+                    <div class="form-check m-0 mt-3">
+                        <input class="form-check-input" type="checkbox" name="fComIdentificador" id="fComIdentificador" value="1">
+                        <label class="form-check-label small text-muted" for="fComIdentificador">Somente c/ Identificador</label>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            // Busca opções dinâmicas do servidor
+            const optsData = await apiCall('ajax_get_base_filter_options', { base: 'Processos' });
+            if (optsData.status === 'ok') {
+                const optionsMap = optsData.options || {};
+
+                // Preenche Atendente
+                const comboAtendente = document.getElementById('dash_fAtendente');
+                if (comboAtendente && optionsMap['Nome_atendente']) {
+                    optionsMap['Nome_atendente'].forEach(opt => {
+                        if (opt) comboAtendente.innerHTML += `<option value="${opt}">${opt}</option>`;
+                    });
+                }
+
+                // Preenche outros campos
+                Object.keys(optionsMap).forEach(key => {
+                    const combo = document.getElementById('dash_f_' + key);
+                    if (combo && key !== 'Nome_atendente') {
+                        optionsMap[key].forEach(opt => {
+                            if (opt) combo.innerHTML += `<option value="${opt}">${opt}</option>`;
+                        });
+                    }
+                });
+            }
+        }
+
+        async function loadDashboardTable(page = 1) {
+            dashCurrentPage = page;
+            const container = document.getElementById('dashboard_table_container');
+            container.innerHTML = '<div class="text-center p-5 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Carregando processos...</div>';
+
+            const form = document.getElementById('form_dashboard_filter');
+            const data = new FormData(form);
+            const params = {
+                pag: page,
+                sortCol: dashSortCol,
+                sortDir: dashSortDir
+            };
+            for (let [k, v] of data.entries()) {
+                params[k] = v;
+            }
+
+            const res = await apiCall('ajax_render_dashboard_table', params);
+            if (res.status === 'ok') {
+                document.getElementById('dash_count_header').innerHTML = `<i class="fas fa-list me-2"></i>Processos (${res.count || 0})`;
+
+                if (!res.data || res.data.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info text-center py-4">Nenhum processo achado.</div>';
+                    document.getElementById('dashboard_pagination_container').innerHTML = '';
+                    return;
+                }
+
+                let html = '<table class="table table-hover align-middle table-sm" style="font-size: 11pt;"><thead><tr>';
+                res.columns.forEach(col => {
+                    let icon = '<i class="fas fa-sort text-muted ms-1" style="font-size:0.8em; opacity:0.3"></i>';
+                    if (dashSortCol === col.key) {
+                        icon = dashSortDir === 'desc' ? '<i class="fas fa-sort-down text-dark ms-1"></i>' : '<i class="fas fa-sort-up text-dark ms-1"></i>';
+                    }
+                    html += `<th style="cursor:pointer;" onclick="setDashSort('${col.key}')">${col.label} ${icon}</th>`;
+                });
+                html += '<th>Ação</th></tr></thead><tbody>';
+
+                res.data.forEach(row => {
+                    let trClass = (row._lock && row._lock.locked) ? 'table-warning' : '';
+                    html += `<tr class="${trClass}">`;
+                    res.columns.forEach(col => {
+                        let text = row[col.key + '_formatted'] || row[col.key] || '';
+
+                        if (col.key === 'STATUS') {
+                            html += `<td><span class="badge bg-secondary">${text}</span></td>`;
+                        } else if (col.key === 'Nome_atendente') {
+                            html += `<td>${text}`;
+                            if (row.Ultima_Alteracao) {
+                                html += `<div class="small text-muted" style="font-size:0.75em"><i class="fas fa-clock me-1"></i>${row.Ultima_Alteracao}</div>`;
+                            }
+                            if (row._lock && row._lock.locked) {
+                                html += `<div class="small text-danger fw-bold"><i class="fas fa-lock me-1"></i> Em uso por: ${row._lock.by}</div>`;
+                            }
+                            html += `</td>`;
+                        } else if (col.key === 'N_PORTABILIDADE' || col.key === 'PORTABILIDADE' || col.key === 'ID') {
+                            // Try to match the primary ID key logic for creds
+                            html += `<td class="fw-bold">${text}`;
+                            if (row._cred) {
+                                html += ` <span class="ms-2 text-success" title="Identificador Vinculado">${res.IDENT_ICON || '<i class="fas fa-sack-dollar"></i>'}</span>`;
+                            }
+                            html += `</td>`;
+                        } else {
+                            html += `<td>${text}</td>`;
+                        }
+                    });
+
+                    html += `<td>
+                        <button class="btn btn-sm btn-link text-primary p-0 me-2" onclick="openProcessEditor('${row.ID || row.N_PORTABILIDADE || row.PORTABILIDADE}')" title="Detalhes"><i class="fas fa-folder-open"></i></button>
+                    </td></tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+                let paginationHtml = '';
+                if (res.pages > 1) {
+                    paginationHtml = '<ul class="pagination justify-content-center pagination-sm">';
+                    if (res.page > 1) {
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="loadDashboardTable(${res.page - 1})">Anterior</a></li>`;
+                    }
+                    paginationHtml += `<li class="page-item disabled"><a class="page-link">${res.page} / ${res.pages}</a></li>`;
+                    if (res.page < res.pages) {
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="loadDashboardTable(${res.page + 1})">Próxima</a></li>`;
+                    }
+                    paginationHtml += '</ul>';
+                }
+                document.getElementById('dashboard_pagination_container').innerHTML = paginationHtml;
+
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">Erro ao carregar os dados.</div>';
+            }
+        }
+
+        // --- GESTÃO DE CONFIGURAÇÕES DE BASES ---
+        let baseCurrentPage = 1;
+        let baseSortCol = '';
+        let baseSortDir = 'asc';
+        let currentBase = '';
+
+        async function loadBaseConfigTable(page = 1) {
+            const selector = document.getElementById('config-base-selector');
+            if (!selector.value) {
+                document.getElementById('base_table_container').innerHTML = '<div class="alert alert-secondary text-center">Selecione uma base acima para gerenciar.</div>';
+                document.getElementById('base_pagination_container').innerHTML = '';
+                document.getElementById('base_count_header').innerHTML = '<i class="fas fa-table me-2"></i>Registros';
+                return;
+            }
+
+            currentBase = selector.value;
+            baseCurrentPage = page;
+            const container = document.getElementById('base_table_container');
+            container.innerHTML = '<div class="text-center p-5 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Carregando dados da base...</div>';
+
+            const searchInput = document.getElementById('base_search_input').value;
+            const params = {
+                base: currentBase,
+                cfBusca: searchInput,
+                cpPagina: page,
+                sortCol: baseSortCol,
+                sortDir: baseSortDir
+            };
+
+            const res = await apiCall('ajax_render_base_table', params);
+            if (res.status === 'ok') {
+                document.getElementById('base_count_header').innerHTML = `<i class="fas fa-table me-2"></i>Registros (${res.count || 0})`;
+
+                if (!res.data || res.data.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info text-center py-4">A base está vazia ou nenhum registro achado.</div>';
+                    document.getElementById('base_pagination_container').innerHTML = '';
+                    return;
+                }
+
+                let html = '<table class="table table-hover align-middle table-sm" style="font-size: 11pt;"><thead><tr>';
+                html += '<th style="width: 40px;"><input type="checkbox"></th>';
+                res.columns.forEach(col => {
+                    let icon = '<i class="fas fa-sort text-muted ms-1" style="font-size:0.8em; opacity:0.3"></i>';
+                    if (baseSortCol === col.key) {
+                        icon = baseSortDir === 'desc' ? '<i class="fas fa-sort-down text-dark ms-1"></i>' : '<i class="fas fa-sort-up text-dark ms-1"></i>';
+                    }
+                    html += `<th style="cursor:pointer;" onclick="setBaseConfigSort('${col.key}')">${col.label} ${icon}</th>`;
+                });
+                html += '<th>Ação</th></tr></thead><tbody>';
+
+                res.data.forEach(row => {
+                    html += `<tr>`;
+                    html += `<td><input type="checkbox" value="${row._id}"></td>`;
+                    res.columns.forEach(col => {
+                        let text = row[col.key + '_formatted'] || row[col.key] || '';
+                        html += `<td>${text}</td>`;
+                    });
+
+                    html += `<td>
+                        <button class="btn btn-sm btn-link text-primary p-0 me-2" onclick="alert('Edição de base em migração.')" title="Editar"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-sm btn-link text-danger p-0" onclick="alert('Exclusão em migração.')" title="Excluir"><i class="fas fa-trash"></i></button>
+                    </td></tr>`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+                let paginationHtml = '';
+                if (res.pages > 1) {
+                    paginationHtml = '<ul class="pagination justify-content-center pagination-sm">';
+                    if (res.page > 1) {
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="loadBaseConfigTable(${res.page - 1})">Anterior</a></li>`;
+                    }
+                    paginationHtml += `<li class="page-item disabled"><a class="page-link">${res.page} / ${res.pages}</a></li>`;
+                    if (res.page < res.pages) {
+                        paginationHtml += `<li class="page-item"><a class="page-link" href="#" onclick="loadBaseConfigTable(${res.page + 1})">Próxima</a></li>`;
+                    }
+                    paginationHtml += '</ul>';
+                }
+                document.getElementById('base_pagination_container').innerHTML = paginationHtml;
+
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">Erro ao carregar a base de dados.</div>';
+            }
+        }
+
+        function setBaseConfigSort(col) {
+            if (baseSortCol === col) {
+                baseSortDir = (baseSortDir === 'desc') ? 'asc' : 'desc';
+            } else {
+                baseSortCol = col;
+                baseSortDir = 'asc';
+            }
+            loadBaseConfigTable(baseCurrentPage);
+        }
+
+        function setDashSort(col) {
+            if (dashSortCol === col) {
+                dashSortDir = (dashSortDir === 'desc') ? 'asc' : 'desc';
+            } else {
+                dashSortCol = col;
+                dashSortDir = 'desc';
+            }
+            loadDashboardTable(dashCurrentPage);
+        }
+
+        // --- GESTÃO DE SERVIÇOS (DETALHES/EDITAR) ---
+        async function openProcessEditor(port) {
+            currentLoadedPort = port;
+            showPage('detalhes');
+            document.getElementById('editor-fields-container').innerHTML = '<div class="text-center p-5 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Carregando processo...</div>';
+
+            // Clean tabs
+            document.getElementById('history_registros_body').innerHTML = '';
+            document.getElementById('email_history_body').innerHTML = '';
+            document.getElementById('table_anexos').innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin me-2"></i> Carregando anexos...</td></tr>';
+
+            const warnLock = document.getElementById('editor-lock-warning');
+            warnLock.classList.add('d-none');
+
+            const res = await apiCall('ajax_get_process_full', { port: port });
+            if (res.status === 'ok') {
+                // Check Locks
+                const currentUser = localStorage.getItem('sm_current_user');
+                if (res.lock && res.lock.locked && res.lock.by !== currentUser) {
+                    warnLock.innerHTML = `<i class="fas fa-lock me-2"></i> Este processo está sendo editado por <strong>${res.lock.by}</strong>. Cuidado ao sobrepor dados.`;
+                    warnLock.classList.remove('d-none');
+                }
+
+                buildProcessFormUI(res.process || {}, smProcFields);
+                buildRegistrosUI(res.process || {}, smRegFields);
+                populateRegistrosHistory(res.registros_history || [], smRegFields);
+                populateEmailHistory(res.email_history || []);
+                loadAttachments(port); // Function will be added next
+            } else {
+                document.getElementById('editor-fields-container').innerHTML = `<div class="alert alert-danger">Erro ao abrir processo: ${res.message || 'Desconhecido'}</div>`;
+            }
+        }
+
+        function buildProcessFormUI(processObj, fields) {
+            const container = document.getElementById('editor-fields-container');
+            let html = '<input type="hidden" name="acao" value="ajax_salvar_processo">';
+
+            // Generate form inputs based on fields schema
+            let isCardOpen = false;
+
+            fields.forEach(f => {
+                if (f.deleted) return;
+
+                if (f.type === 'title') {
+                    if (isCardOpen) html += `</div></div>`;
+                    html += `<div class="card p-4 mb-4 shadow-sm" style="border-radius:12px; border:none; background:#fff;">
+                             <h5 class="text-navy fw-bold border-bottom pb-2">${f.label}</h5>
+                             <div class="row g-3">`;
+                    isCardOpen = true;
+                    return;
+                }
+
+                if (!isCardOpen) {
+                    html += `<div class="card p-4 mb-4 shadow-sm" style="border-radius:12px; border:none; background:#fff;">
+                             <h5 class="text-navy fw-bold border-bottom pb-2">Dados</h5>
+                             <div class="row g-3">`;
+                    isCardOpen = true;
+                }
+
+                if (f.key === 'Ultima_Alteracao') return;
+
+                let val = processObj[f.key] || '';
+                let reqHtml = f.required ? '<span class="text-danger small">*</span>' : '';
+                let reqAttr = f.required ? 'required' : '';
+
+                html += `<div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted mb-1">${f.label} ${reqHtml}</label>`;
+
+                if (f.type === 'textarea') {
+                    html += `<textarea name="${f.key}" class="form-control form-control-sm shadow-sm" rows="2" ${reqAttr}>${val}</textarea>`;
+                } else if (f.type === 'select' || f.key === 'STATUS') {
+                    html += `<select name="${f.key}" class="form-select form-select-sm shadow-sm" ${reqAttr}>`;
+                    html += `<option value="">...</option>`;
+                    let opts = (f.options || '').split(',').map(s => s.trim()).filter(Boolean);
+                    if (f.key === 'STATUS' && opts.length === 0) opts = ['EM ANDAMENTO', 'CONCLUÍDO', 'CANCELADO'];
+                    if (val && !opts.includes(val)) opts.push(val); // In case of legacy data
+                    opts.forEach(o => {
+                        let sel = (o === val) ? 'selected' : '';
+                        html += `<option value="${o}" ${sel}>${o}</option>`;
+                    });
+                    html += `</select>`;
+                } else {
+                    html += `<input type="${f.type === 'date' ? 'date' : 'text'}" name="${f.key}" class="form-control form-control-sm shadow-sm" value="${val}" ${reqAttr}>`;
+                }
+
+                html += `</div>`;
+            });
+
+            if (isCardOpen) html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        async function salvarProcesso() {
+            const form = document.getElementById('form_processo');
+            const data = new FormData(form);
+            const params = {};
+            for (let [k, v] of data.entries()) params[k] = v;
+
+            Swal.fire({ title: 'Salvando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const res = await apiCall('ajax_salvar_processo', params);
+            if (res.status === 'ok') {
+                Swal.fire('Sucesso!', 'Processo salvo com sucesso.', 'success');
+                // Could refresh data here
+            } else {
+                Swal.fire('Erro', res.message || 'Falha ao salvar.', 'error');
+            }
+        }
+
+        // --- GESTÃO DE REGISTROS DE PROCESSO (HISTÓRICO) ---
+        function buildRegistrosUI(processObj, regFields) {
+            const container = document.getElementById('registros_form_container');
+            const thead = document.getElementById('history_registros_head');
+
+            let formHtml = '<input type="hidden" id="reg_uid" name="reg_uid">';
+            let headHtml = '<tr><th><input type="checkbox" onclick="toggleAllChecks(this, \'registros_del\')"></th><th>Data</th><th>Usuário</th>';
+
+            regFields.forEach(f => {
+                if (f.deleted) return;
+                headHtml += `<th>${f.label}</th>`;
+
+                if (f.type === 'title') {
+                    formHtml += `<div class="col-12"><h6 class="text-navy fw-bold border-bottom pb-2 mt-3">${f.label}</h6></div>`;
+                    return;
+                }
+
+                formHtml += `<div class="col-md-4"><label class="form-label small fw-bold text-muted mb-1">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>`;
+                const req = f.required ? 'required' : '';
+
+                if (f.type === 'textarea') {
+                    formHtml += `<textarea name="reg_new_${f.key}" class="form-control form-control-sm reg-new-field shadow-sm" rows="1" ${req}></textarea>`;
+                } else if (f.type === 'select') {
+                    formHtml += `<select name="reg_new_${f.key}" class="form-select form-select-sm reg-new-field shadow-sm" ${req}><option value="">...</option>`;
+                    let opts = (f.options || '').split(',').map(s => s.trim()).filter(Boolean);
+                    opts.forEach(o => formHtml += `<option value="${o}">${o}</option>`);
+                    formHtml += `</select>`;
+                } else {
+                    formHtml += `<input type="${f.type === 'date' ? 'date' : 'text'}" name="reg_new_${f.key}" class="form-control form-control-sm reg-new-field shadow-sm" ${req}>`;
+                }
+                formHtml += `</div>`;
+            });
+
+            headHtml += `</tr>`;
+            container.innerHTML = formHtml;
+            thead.innerHTML = headHtml;
+        }
+
+        function populateRegistrosHistory(history, regFields) {
+            const tbody = document.getElementById('history_registros_body');
+            if (!history || history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted">Nenhum registro encontrado.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            history.forEach(row => {
+                let textId = row._id || '';
+                html += `<tr>`;
+                html += `<td><input type="checkbox" class="form-check-input mb-0" style="margin-top:0;" name="registros_del[]" value="${textId}"></td>`;
+                html += `<td>${row.DATA || ''}</td>`;
+                html += `<td>${row.Nome_atendente || ''}</td>`;
+
+                regFields.forEach(f => {
+                    if (f.deleted || f.type === 'title') return;
+                    html += `<td>${row[f.key] || ''}</td>`;
+                });
+
+                html += `</tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function saveProcessRecord() {
+            if (!currentLoadedPort) { Swal.fire('Erro', 'Processo não selecionado.', 'error'); return; }
+
+            const inputs = document.querySelectorAll('.reg-new-field');
+            let formValid = true;
+            inputs.forEach(el => { if (el.required && !el.value) formValid = false; });
+            if (!formValid) { Swal.fire('Erro', 'Preencha os campos obrigatórios', 'error'); return; }
+
+            const fd = new FormData();
+            fd.append('acao', 'ajax_save_process_data_record');
+            fd.append('port', currentLoadedPort);
+
+            inputs.forEach(el => {
+                const key = el.name.replace('reg_new_', '');
+                fd.append(key, el.value);
+            });
+
+            const uidInput = document.getElementById('reg_uid');
+            if (uidInput && uidInput.value) fd.append('uid', uidInput.value);
+
+            Swal.fire({ title: 'Salvando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            try {
+                const resRaw = await fetch('api.php', { method: 'POST', body: fd });
+                const res = await resRaw.json();
+                if (res.status === 'ok') {
+                    Swal.fire('Sucesso', 'Registro salvo!', 'success');
+                    populateRegistrosHistory(res.history || [], smRegFields);
+                    inputs.forEach(el => el.value = ''); // clear form
+                } else {
+                    Swal.fire('Erro', res.message || 'Erro ao salvar', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Erro', 'Falha na comunicação: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteSelectedHistory(type) {
+            let name = (type == 'envios') ? 'hist_del' : (type == 'email' ? 'email_hist_del' : 'registros_del');
+            let action = (type == 'envios' || type == 'email') ? 'ajax_delete_history' : 'ajax_delete_process_history';
+
+            const checks = document.querySelectorAll(`input[name="${name}[]"]:checked`);
+            if (checks.length === 0) { Swal.fire('Atenção', 'Selecione pelo menos um registro.', 'warning'); return; }
+
+            Swal.fire({
+                title: 'Excluir Selecionados?',
+                text: "Essa ação não pode ser desfeita.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sim, excluir'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const ids = Array.from(checks).map(cb => cb.value);
+                    const res = await apiCall(action, { ids: JSON.stringify(ids), port: currentLoadedPort });
+
+                    if (res.status === 'ok') {
+                        Swal.fire('Excluído!', 'Registros removidos.', 'success');
+                        checks.forEach(cb => {
+                            const tr = cb.closest('tr');
+                            if (tr) tr.remove();
+                        });
+                    } else {
+                        Swal.fire('Erro', 'Falha ao excluir.', 'error');
+                    }
+                }
+            });
+        }
+
+        function toggleAllChecks(source, name) {
+            const checks = document.querySelectorAll(`input[name="${name}[]"]`);
+            checks.forEach(cb => cb.checked = source.checked);
+        }
+
+        // --- GESTÃO DE CHAT/EMAIL (TEXTOS) ---
+        function populateEmailHistory(history) {
+            const tbody = document.getElementById('email_history_body');
+            if (!history || history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted">Nenhum email processado.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            history.forEach(row => {
+                if (row.type !== 'email') return;
+                html += `<tr>`;
+                html += `<td>${row.date || ''}</td>`;
+                html += `<td>${row.user || ''}</td>`;
+                html += `<td>${row.subject || ''}</td>`;
+                html += `<td>${row.to || ''}</td>`;
+                html += `</tr>`;
+            });
+            tbody.innerHTML = html || '<tr><td colspan="100%" class="text-center text-muted">Nenhum email processado.</td></tr>';
+        }
+        // --- GESTÃO DE ANEXOS ---
+        async function loadAttachments(port) {
+            const tbody = document.getElementById('table_anexos');
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin me-2"></i> Carregando anexos...</td></tr>';
+            const res = await apiCall('ajax_list_attachments', { port: port });
+            if (res.status === 'ok') {
+                if (!res.files || res.files.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Nenhum arquivo anexado.</td></tr>';
+                    return;
+                }
+                let html = '';
+                res.files.forEach(f => {
+                    html += `<tr>
+                        <td><a href="${f.url}" target="_blank" class="fw-bold text-navy" style="text-decoration:none;"><i class="fas fa-file me-2"></i>${f.name}</a></td>
+                        <td>${f.size}</td>
+                        <td>
+                            <button class="btn btn-sm btn-link text-primary p-0 me-2" onclick="renameAttachment('${f.name}')" title="Renomear"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-link text-danger p-0" onclick="deleteAttachment('${f.name}')" title="Excluir"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger">${res.message || 'Erro ao carregar.'}</td></tr>`;
+            }
+        }
+
+        async function uploadAttachment() {
+            if (!currentLoadedPort) return;
+            const input = document.getElementById('input_anexo_file');
+            if (!input.files || input.files.length === 0) {
+                Swal.fire('Aviso', 'Selecione pelo menos um arquivo.', 'warning');
+                return;
+            }
+
+            const fd = new FormData();
+            fd.append('acao', 'ajax_upload_attachment');
+            fd.append('port', currentLoadedPort);
+            for (let i = 0; i < input.files.length; i++) {
+                fd.append('files[]', input.files[i]);
+            }
+
+            Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            try {
+                const resRaw = await fetch('api.php', { method: 'POST', body: fd });
+                const res = await resRaw.json();
+                if (res.status === 'ok') {
+                    Swal.fire('Sucesso', 'Arquivos enviados com sucesso.', 'success');
+                    input.value = '';
+                    loadAttachments(currentLoadedPort);
+                } else {
+                    Swal.fire('Erro', res.message || 'Falha no envio do anexo.', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Erro', 'Falha na comunicação: ' + e.message, 'error');
+            }
+        }
+
+        function deleteAttachment(file) {
+            Swal.fire({
+                title: 'Excluir arquivo?',
+                text: "Esta ação não pode ser desfeita.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Sim, excluir!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Excluindo...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    const res = await apiCall('ajax_delete_attachment', { port: currentLoadedPort, file: file });
+                    if (res.status === 'ok') {
+                        Swal.fire('Sucesso', 'Arquivo excluído.', 'success');
+                        loadAttachments(currentLoadedPort);
+                    } else {
+                        Swal.fire('Erro', res.message || 'Falha ao excluir.', 'error');
+                    }
+                }
+            });
+        }
+
+        function renameAttachment(oldName) {
+            Swal.fire({
+                title: 'Renomear Arquivo',
+                input: 'text',
+                inputValue: oldName,
+                showCancelButton: true,
+                confirmButtonText: 'Salvar',
+                showLoaderOnConfirm: true,
+                preConfirm: async (newName) => {
+                    if (!newName) { Swal.showValidationMessage('Nome inválido'); return false; }
+                    const res = await apiCall('ajax_rename_attachment', { port: currentLoadedPort, old: oldName, new: newName });
+                    if (res.status !== 'ok') { Swal.showValidationMessage(res.message); return false; }
+                    return res;
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Sucesso!', 'Arquivo renomeado.', 'success');
+                    loadAttachments(currentLoadedPort);
+                }
+            });
+        }
+
+        // --- GESTÃO TRADICIONAL DE LEMBRETES ---
+        function setLembreteSort(col) {
+            if (lembSortCol === col) {
+                lembSortDir = (lembSortDir === 'desc') ? 'asc' : 'desc';
+            } else {
+                lembSortCol = col;
+                lembSortDir = 'asc';
+            }
+            loadLembretesTable(lembCurrentPage);
+        }
+
+        // Isso permite a paginação funcionar chamando da interface em string JS se necessário.
+        window.renderBaseTable = function (page) {
+            loadDashboardTable(page); // A api.php pode gerar os hrefs usando renderBaseTable(page)
+        };
+        window.setDashSort = setDashSort; // A api.php gera onclick="setDashSort('key')"
+        window.loadLembretesTable = loadLembretesTable;
+
+        // --- INIT ---
+        const currentUser = localStorage.getItem('sm_current_user');
+        if (currentUser) {
+            showAppScreen();
+        } else {
+            showLoginScreen();
+        }
+    </script>
+</body>
+
+</html>
